@@ -1,0 +1,40 @@
+'''
+目标网址：http://cjcx.neea.edu.cn/html1/folder/1508/206-1.htm?sid=280
+爬取目标：验证码，获取成绩结果
+'''
+import urllib.request
+import urllib.parse
+
+def getHeaders(temp_data=""):
+    headers = {
+        "Cookie" : "Hm_lvt_dc1d69ab90346d48ee02f18510292577=1576074175; esessionid=902BF3BCEA4F27EA0A16545423264D7B; BIGipServersearch.neea.edu.cn=2946549770.37407.0000; language=1; Hm_lpvt_dc1d69ab90346d48ee02f18510292577=1576074583; "+temp_data,
+        "Host" : "search.neea.edu.cn",
+        "Referer": "http://search.neea.edu.cn/QueryMarkUpAction.do?act=doQueryCond&sid=280&pram=results&psid=&ksnf=0mc6nmMWFcRbklZLw4TRzJ&sf=11&bkjb=1&zkzh=&name=%E7%A5%9D%E5%A4%A9&sfzh=230624654654444444",
+        "User-Agent":"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+    }
+    return headers
+
+image_pic = "http://search.neea.edu.cn/Imgs.do?act=verify&t=0.9518755701890342"
+image_data = urllib.request.urlopen(urllib.request.Request(url=image_pic,headers=getHeaders()))
+with open("verify.png","wb") as f:
+    f.write(image_data.read())
+
+   # print(image_data.headers["Set-Cookie"])
+
+verify = input("Please input verify:")
+post_url ="http://search.neea.edu.cn/QueryMarkUpAction.do?act=doQueryResults0"
+
+post_data = {
+"pram": "results",
+"ksxm": "280",
+"nexturl": "/QueryMarkUpAction.do?act=doQueryCond&sid=280&pram=results&psid=&ksnf=0mc6nmMWFcRbklZLw4TRzJ&sf=11&bkjb=1&zkzh=&name=祝天&sfzh=230655555555555555",
+"ksnf": "0mc6nmMWFcRbklZLw4TRzJ",
+"sf": "11",
+"bkjb": "1",
+"zkzh":"",
+"name": "祝天",
+"sfzh": "230621200007180256",
+"verify": verify
+}
+
+print(urllib.request.urlopen(urllib.request.Request(url=post_url,data=urllib.parse.urlencode(post_data).encode("utf-8"),headers=getHeaders(image_data.headers["Set-Cookie"]))).read().decode("utf-8"))
