@@ -1,0 +1,38 @@
+import urllib.request
+import re
+import urllib.parse
+import ssl
+import json
+import time
+
+ssl._create_default_https_context = ssl._create_unverified_context
+
+headers = {
+    "Cookie" : "BAIDUID=937209F04F7E6CC6DA672B4A4E88BCA5:FG=1; BIDUPSID=937209F04F7E6CC6DA672B4A4E88BCA5; PSTM=1574525799; BDUSS=HRaVm1RZzNyVzc5dGV-bm81N0UxQn5YMVN1MEFTUEFIRkEzUG5iNWRjU2JRQVZlRVFBQUFBJCQAAAAAAAAAAAEAAAAK54FX16PM7MzszOzM7MzsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAJuz3V2bs91dV; pgv_pvi=781550592; TIEBAUID=dd9cfee985aefa6677f722b0; STOKEN=dfdf97efd9591541930722f56e3310f284b7d78b41775ec236bed09b65126f0e; TIEBA_USERTYPE=68763e20d94af84e0b0d56b7; cflag=13%3A3; pgv_si=s5527243776; Hm_lvt_98b9d8c2fd6608d564bf2ac2ae642948=1575805976,1576018946; Hm_lpvt_98b9d8c2fd6608d564bf2ac2ae642948=1576018985",
+    "User-Agent" : "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36"
+}
+
+def SignAdd(kw,tbs_data):
+    url = "https://tieba.baidu.com/sign/add"
+
+    post_data = {
+        "ie": "utf-8",
+        "kw": kw ,
+        "tbs": "tbs_data"
+    }
+    data = urllib.parse.urlencode(post_data).encode("utf-8")
+    post_req = urllib.request.Request(url=url,data=data,headers=headers)
+    try:
+        return(kw,json.loads(urllib.request.urlopen(post_req).read().decode("utf-8"))["data"]["errmsg"])
+    except:
+        return (kw,"faild")
+
+forum_list = re.findall('"forum_id":(.*?),"forum_name":"(.*?)"',urllib.request.urlopen(urllib.request.Request(url="https://tieba.baidu.com/",headers=headers)).read().decode())
+
+for eve_forum in forum_list:
+    kw = eve_forum[1].encode('latin-1').decode("unicode_escape") #解码
+
+    forum_url = "http://tieba.baidu.com/f?kw=" + urllib.parse.quote(kw)# 中文处理
+    tbs_data =re.findall(' \'tbs\': "(.*?)" ',urllib.request.urlopen(urllib.request.Request(url=forum_url,headers=headers)).read().decode("utf-8"))[0]
+
+    print(" - ".join(SignAdd(kw,tbs_data)))
